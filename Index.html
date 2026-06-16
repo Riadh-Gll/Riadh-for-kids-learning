@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0e1a">
+<title>Riadh For Kids Learning 🚀</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700;800;900&family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<!-- Twemoji v15 (jdecked fork) — supports Unicode 15+ so 🩷 🩶 🪻 🫐 🫀 🪸 🩵 etc. all render -->
+<script src="https://cdn.jsdelivr.net/npm/@discordapp/twemoji@15.1.0/dist/twemoji.min.js" crossorigin></script>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100vh; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: #0a0e1a;
+  color: #fff;
+  overflow-x: hidden;
+}
+:root {
+  --teal:   #00E5FF;
+  --purple: #B048F8;
+  --pink:   #FF4DA6;
+  --gold:   #FFD700;
+  --gold2:  #FFA500;
+  --green:  #00E676;
+  --red:    #FF5252;
+  --blue:   #448AFF;
+  --orange: #FF9100;
+  --glass:  rgba(255,255,255,.06);
+  --border: rgba(255,255,255,.12);
+}
+
+/* ===== BACKGROUND ===== */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0,229,255,.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(176,72,248,.09) 0%, transparent 60%);
+}
+#starfield {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.star {
+  position: absolute; border-radius: 50%; background: #fff;
+  animation: twinkle var(--d,3s) ease-in-out infinite var(--delay,0s);
+}
+@keyframes twinkle { 0%,100%{opacity:.1} 50%{opacity:.9} }
+
+/* ===== APP WRAPPER ===== */
+#app {
+  position: relative; z-index: 1; min-height: 100vh;
+}
+
+/* ===== TOPBAR ===== */
+#topbar {
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px;
+  background: rgba(10,14,26,.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 8px;
+}
+.logo {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(.9rem, 2.5vw, 1.3rem);
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--teal), var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.tb-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tb-stat {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 50px; padding: 4px 11px; font-size: .78rem; font-weight: 800;
+}
+.tb-user {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 50px; padding: 4px 12px 4px 5px;
+  font-size: .78rem; font-weight: 700; cursor: pointer;
+}
+.tb-user:hover { border-color: var(--pink); }
+.tb-av {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; font-size: .85rem;
+}
+.icon-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--glass);
+  color: #fff; font-size: .9rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+}
+.icon-btn:hover { background: var(--gold); color: #000; }
+.crumb-btn {
+  background: none; border: 1px solid var(--border); border-radius: 50px;
+  color: #aaa; padding: 4px 12px; font-size: .76rem; font-weight: 700; cursor: pointer;
+  transition: all .2s;
+}
+.crumb-btn:hover { border-color: var(--teal); color: var(--teal); }
+.hidden { display: none !important; }
+
+/* ===== SCREENS — THE KEY FIX ===== */
+/* Every page is a full-screen div, hidden by default */
+.page {
+  display: none;
+  min-height: calc(100vh - 53px); /* subtract topbar */
+  animation: fadeUp .3s ease;
+}
+.page.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+/* pgAuth — first screen, fully visible on TV / Android */
+#pgAuth.active {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 16px 60px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-height: 720px) { #pgAuth.active { align-items: center; } }
+
+/* ===== TV & ANDROID FOCUS RING (D-pad / remote navigation) ===== */
+button:focus-visible, .fi:focus-visible, .avo:focus-visible, .co:focus-visible,
+.h-card:focus-visible, .lv-card:focus-visible, .item-card:focus-visible,
+.opt-btn:focus-visible, .auth-tab:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(255,215,0,.35), 0 0 24px rgba(255,215,0,.5);
+}
+/* Make every interactive surface focusable from a TV remote */
+.h-card, .lv-card, .item-card { cursor: pointer; }
+
+/* TV-safe area (overscan) */
+@media (min-width: 1280px) and (min-height: 720px) and (pointer: coarse),
+       (min-width: 1920px) {
+  #app { padding: 0 2vw; }
+  #topbar { padding: 14px 24px; }
+}
+
+.page-inner {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 28px 16px 80px;
+}
+
+/* ===== AUTH ===== */
+.auth-wrap { display: flex; flex-direction: column; align-items: center; width: 100%; gap: 20px; }
+.auth-logo { text-align: center; }
+.auth-logo .al-icon { font-size: 3rem; display: block; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+.auth-logo h1 {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.3rem,4vw,1.9rem); font-weight: 900;
+  background: linear-gradient(90deg,var(--teal),var(--purple),var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.auth-logo p { color: #7a8aa0; font-size: .84rem; margin-top: 4px; }
+
+.auth-box {
+  background: linear-gradient(145deg, rgba(20,28,50,.98), rgba(12,18,36,.98));
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 26px;
+  padding: 30px 26px;
+  width: 100%; max-width: 430px;
+  box-shadow: 0 0 50px rgba(176,72,248,.14), 0 20px 60px rgba(0,0,0,.6);
+}
+
+/* Tab bar */
+.auth-tabs {
+  display: flex;
+  background: rgba(255,255,255,.05);
+  border-radius: 50px; padding: 3px;
+  margin-bottom: 20px;
+}
+.auth-tab {
+  flex: 1; padding: 9px; border: none; border-radius: 50px;
+  background: transparent; color: #7a8aa0;
+  font-family: 'Nunito', sans-serif; font-weight: 800; font-size: .82rem;
+  cursor: pointer; transition: all .2s;
+}
+.auth-tab:hover { color: #ddd; }
+.auth-tab.on { background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff; }
+
+/* Panels */
+.auth-panel { display: none; }
+.auth-panel.on { display: block; }
+
+.fg { margin-bottom: 11px; }
+.fg label { display:block; font-size:.7rem; font-weight:800; color:#7a8aa0; margin-bottom:3px; text-transform:uppercase; letter-spacing:.5px; }
+.fi {
+  width: 100%; background: rgba(255,255,255,.05);
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 9px 12px; color: #fff;
+  font-family: 'Nunito', sans-serif; font-size: .88rem; outline: none;
+  transition: border-color .2s;
+}
+.fi:focus { border-color: var(--purple); }
+.fi::placeholder { color: #4a5568; }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+.auth-btn {
+  width: 100%; padding: 12px; border: none; border-radius: 50px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: #fff; font-family: 'Baloo 2', cursive; font-size: .97rem; font-weight: 900;
+  cursor: pointer; margin-top: 6px;
+  box-shadow: 0 5px 20px rgba(176,72,248,.32);
+  transition: transform .2s, box-shadow .2s;
+}
+.auth-btn:hover { transform: scale(1.03); box-shadow: 0 8px 28px rgba(176,72,248,.48); }
+
+.auth-err { color: var(--red); font-size: .78rem; font-weight: 700; text-align: center; min-height: 1em; margin-top: 6px; }
+.auth-switch { text-align: center; color: #7a8aa0; font-size: .78rem; margin-top: 10px; }
+.auth-link { color: var(--teal); cursor: pointer; font-weight: 800; }
+.auth-link:hover { text-decoration: underline; }
+
+/* Avatar & color pickers */
+.avp { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 5px; }
+.avo {
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; cursor: pointer; background: var(--glass);
+  transition: all .2s; user-select: none;
+}
+.avo:hover, .avo.on { border-color: var(--purple); background: rgba(176,72,248,.15); transform: scale(1.1); }
+.cop { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 5px; }
+.co {
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  border: 2.5px solid transparent; transition: all .2s;
+}
+.co:hover, .co.on { border-color: #fff; transform: scale(1.18); }
+
+/* ===== HOME ===== */
+.h-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.5rem,4vw,2.5rem); font-weight: 900;
+  text-align: center; margin-bottom: 5px;
+  background: linear-gradient(135deg,var(--teal),var(--purple),var(--pink),var(--gold));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.h-sub { text-align: center; color: #7a8aa0; font-size: .86rem; margin-bottom: 28px; }
+.h-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px; max-width: 680px; margin: 0 auto 26px;
+}
+@media(max-width:520px){ .h-grid{ grid-template-columns:1fr; } }
+.h-card {
+  position: relative; border-radius: 26px; padding: 32px 20px 24px;
+  cursor: pointer; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.10);
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+  box-shadow: 0 20px 60px rgba(0,0,0,.55);
+}
+.h-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 28px 70px rgba(0,0,0,.65), 0 0 36px var(--glow,rgba(0,229,255,.22));
+}
+.h-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg,rgba(255,255,255,.06) 0%,transparent 55%);
+  pointer-events: none;
+}
+.h-card.learn { background: linear-gradient(145deg,rgba(0,229,255,.11),rgba(176,72,248,.15)); --glow:rgba(0,229,255,.25); }
+.h-card.game  { background: linear-gradient(145deg,rgba(255,77,166,.11),rgba(255,145,0,.15)); --glow:rgba(255,77,166,.25); }
+.h-card-icon { font-size: 3.3rem; display: block; margin-bottom: 12px; filter: drop-shadow(0 0 12px var(--glow,#fff)); }
+.h-card-title { font-family: 'Baloo 2',cursive; font-size: 1.45rem; font-weight: 900; margin-bottom: 5px; }
+.h-card.learn .h-card-title { color: var(--teal); }
+.h-card.game  .h-card-title { color: var(--pink); }
+.h-card-desc { color: #aab; font-size: .8rem; line-height: 1.5; margin-bottom: 13px; }
+.h-card-badge {
+  display: inline-flex; align-items: center;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 50px; padding: 4px 13px; font-size: .75rem; font-weight: 800; color: #ccc;
+}
+.card-orb { position: absolute; border-radius: 50%; filter: blur(24px); pointer-events: none; opacity: .2; }
+
+/* Leaderboard */
+.section { max-width: 680px; margin: 0 auto; }
+.section-title {
+  font-family: 'Baloo 2',cursive; font-size: 1rem; font-weight: 900;
+  color: #aab; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.leader-card {
+  display: flex; align-items: center; gap: 11px;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 13px; margin-bottom: 8px;
+  transition: border-color .2s;
+}
+.leader-card:hover { border-color: var(--gold); }
+.rank { font-family: 'Baloo 2',cursive; font-size: .95rem; font-weight: 900; min-width: 26px; text-align: center; }
+.leader-av { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 2px solid rgba(255,255,255,.18); }
+.leader-info { flex: 1; }
+.leader-name { font-weight: 800; font-size: .87rem; }
+.leader-stats { color: #7a8aa0; font-size: .72rem; margin-top: 1px; }
+.leader-score { font-family: 'Baloo 2',cursive; font-size: .95rem; font-weight: 900; color: var(--gold); }
+
+/* ===== LEVEL SELECT ===== */
+.mode-hdr { text-align: center; margin-bottom: 24px; }
+.mode-hdr h2 { font-family: 'Baloo 2',cursive; font-size: 1.65rem; font-weight: 900; margin-bottom: 3px; }
+.mode-hdr p { color: #7a8aa0; font-size: .82rem; }
+.diff-band {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 8px; font-size: .7rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px; color: #7a8aa0;
+}
+.diff-band::before, .diff-band::after { content:''; flex:1; height:1px; background:var(--border); }
+.lv-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(110px,1fr)); gap: 10px; }
+.lv-card {
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 18px; padding: 15px 9px 12px;
+  text-align: center; cursor: pointer;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s;
+  position: relative; overflow: hidden; user-select: none;
+}
+.lv-card:not(.locked):hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 13px 38px rgba(0,0,0,.4), 0 0 16px var(--lv-glow,rgba(0,229,255,.18));
+  border-color: var(--lv-color, var(--teal));
+}
+.lv-card.locked { opacity: .38; cursor: not-allowed; }
+.lv-num { font-family: 'Baloo 2',cursive; font-size: 1.55rem; font-weight: 900; color: var(--lv-color, var(--teal)); }
+.lv-emoji { font-size: 1.3rem; display: block; margin: 2px 0; }
+.lv-label { font-size: .63rem; font-weight: 700; color: #7a8aa0; text-transform: uppercase; letter-spacing: .4px; }
+.lv-stars { font-size: .72rem; margin-top: 4px; color: var(--gold); min-height: .8em; }
+.lv-lock { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+
+/* ===== PLAY HEADER ===== */
+.play-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 8px; }
+.back-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--glass); border: 1px solid var(--border); border-radius: 50px;
+  color: #ccc; padding: 7px 15px; font-weight: 800; font-size: .8rem; cursor: pointer;
+  transition: all .2s;
+}
+.back-btn:hover { border-color: var(--teal); color: var(--teal); }
+.lv-info { text-align: right; }
+.lv-tag { font-family: 'Baloo 2',cursive; font-size: 1.05rem; font-weight: 900; color: var(--teal); }
+.lv-prog { font-size: .7rem; color: #7a8aa0; margin-top: 1px; }
+
+/* ===== LEARN ITEMS ===== */
+.cat-title { font-family: 'Baloo 2',cursive; font-size: clamp(1.3rem,4vw,2rem); font-weight: 900; text-align: center; margin-bottom: 3px; }
+.cat-sub { text-align: center; color: #7a8aa0; font-size: .8rem; margin-bottom: 20px; }
+.items-grid {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(130px,1fr)); gap: 12px;
+}
+@media(max-width:460px){ .items-grid{ grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:9px; } }
+.item-card {
+  background: var(--glass); border: 2px solid var(--border);
+  border-radius: 18px; padding: 18px 9px 12px;
+  text-align: center; cursor: pointer;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s, border-color .2s, background .2s;
+  position: relative; overflow: hidden; user-select: none;
+}
+.item-card:hover {
+  transform: translateY(-5px) scale(1.04);
+  box-shadow: 0 13px 38px rgba(0,0,0,.42), 0 0 18px var(--ic-glow,rgba(0,229,255,.16));
+  border-color: var(--ic-color, var(--teal));
+  background: rgba(255,255,255,.07);
+}
+.item-card.seen { border-color: var(--green); background: rgba(0,230,118,.05); }
+.item-card.seen::after { content:'✓'; position:absolute; top:5px; right:7px; font-size:.78rem; font-weight:900; color:var(--green); }
+.item-vis { font-size: 2.7rem; display: block; margin-bottom: 8px; line-height: 1.1; transition: transform .2s; filter: drop-shadow(0 2px 8px rgba(0,0,0,.3)); }
+.item-card:hover .item-vis { transform: scale(1.15) translateY(-2px); }
+.item-lbl { font-family: 'Baloo 2',cursive; font-size: .85rem; font-weight: 800; color: #e0e8f0; }
+.prog-row { display: flex; align-items: center; gap: 9px; margin-top: 14px; }
+.prog-bar { flex: 1; height: 6px; border-radius: 10px; background: rgba(255,255,255,.07); overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg,var(--teal),var(--purple)); transition: width .5s ease; }
+.prog-txt { font-size: .72rem; font-weight: 800; color: #7a8aa0; white-space: nowrap; }
+
+/* ===== GAME ===== */
+.game-hdr { text-align: center; margin-bottom: 16px; }
+.game-title { font-family: 'Baloo 2',cursive; font-size: 1.55rem; font-weight: 900; color: var(--pink); }
+.game-sub { color: #7a8aa0; font-size: .78rem; margin-top: 2px; }
+.score-bar {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 50px; padding: 8px 18px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.sc-item { display: flex; align-items: center; gap: 4px; font-weight: 800; font-size: .8rem; }
+#q-card {
+  background: var(--glass); border: 1px solid var(--border);
+  border-radius: 26px; padding: 28px 20px 20px;
+  text-align: center; margin-bottom: 15px;
+  box-shadow: 0 16px 50px rgba(0,0,0,.36);
+  position: relative; overflow: hidden;
+}
+#q-card::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,.04) 0%,transparent 50%); pointer-events:none; }
+#q-prompt { font-size:.76rem; color:#7a8aa0; font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; }
+#q-round-badge { position:absolute; top:10px; right:14px; font-size:.7rem; font-weight:800; color:#7a8aa0; }
+#q-visual { font-size:5rem; display:block; line-height:1.1; margin:0 auto 4px; filter:drop-shadow(0 5px 16px rgba(0,0,0,.48)); animation:floatQ 3s ease-in-out infinite; }
+@keyframes floatQ { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+.opts-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:520px; margin:0 auto 12px; }
+@media(min-width:900px){ .opts-grid{grid-template-columns:repeat(4,1fr); max-width:720px;} }
+.opt-btn {
+  background: var(--glass); border: 2px solid var(--border);
+  border-radius: 18px; padding: 16px 10px 12px;
+  font-family: 'Baloo 2',cursive; font-size: .95rem; font-weight: 800; color: #dde;
+  cursor: pointer; transition: all .2s;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; line-height: 1.2;
+  min-height: 110px;
+}
+.opt-btn:hover:not(:disabled) { border-color:var(--blue); background:rgba(68,138,255,.09); transform:translateY(-2px); }
+.opt-btn.correct { border-color:var(--green); background:rgba(0,230,118,.11); color:var(--green); }
+.opt-btn.wrong   { border-color:var(--red);   background:rgba(255,82,82,.11);  color:var(--red);   }
+.opt-btn:disabled { cursor:default; }
+.opt-emo { font-size:2.8rem; line-height:1; flex-shrink:0; display:inline-flex; align-items:center; justify-content:center; }
+.opt-txt { font-size:1rem; font-weight:900; }
+#feedback-msg { text-align:center; font-family:'Baloo 2',cursive; font-size:1.1rem; font-weight:900; min-height:1.6rem; margin-bottom:8px; }
+#next-btn {
+  display: none; font-family:'Baloo 2',cursive; font-size:.9rem; font-weight:900;
+  padding: 10px 32px; border: none; border-radius: 50px;
+  background: linear-gradient(135deg,var(--pink),var(--gold2));
+  color: #fff; cursor: pointer; margin: 0 auto;
+  box-shadow: 0 5px 20px rgba(255,77,166,.36); transition: transform .2s;
+}
+#next-btn:hover { transform:scale(1.06); }
+
+/* ===== ADMIN ===== */
+.admin-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; margin-top:20px; }
+.admin-card { background:var(--glass); border:1px solid var(--border); border-radius:18px; padding:18px 16px; }
+.admin-card h3 { font-family:'Baloo 2',cursive; font-size:.95rem; font-weight:900; margin-bottom:10px; color:var(--teal); }
+.stat-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px solid var(--border); font-size:.8rem; }
+.stat-row:last-child { border-bottom:none; }
+.stat-val { font-weight:800; color:var(--gold); }
+.user-stat { background:var(--glass); border:1px solid var(--border); border-radius:18px; padding:15px 13px; margin-bottom:10px; }
+.ush { display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+.us-av { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; border:2px solid rgba(255,255,255,.18); }
+.us-name { font-family:'Baloo 2',cursive; font-size:.9rem; font-weight:900; }
+.us-join { font-size:.7rem; color:#7a8aa0; margin-top:1px; }
+.mini-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:10px; }
+.mini-stat { background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:9px; padding:6px; text-align:center; font-size:.72rem; font-weight:800; color:#ccc; }
+.mini-bar { height:5px; border-radius:4px; background:rgba(255,255,255,.07); overflow:hidden; margin-top:3px; }
+.mini-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--purple),var(--pink)); }
+
+/* ===== SPOTLIGHT ===== */
+#spotlight {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,.8); backdrop-filter: blur(10px);
+}
+#spotlight.show { display: flex; animation: fadeIn .2s ease; }
+.spot-box {
+  background: linear-gradient(145deg,rgba(20,28,50,.98),rgba(12,18,36,.98));
+  border: 1px solid rgba(255,255,255,.15); border-radius: 26px;
+  padding: 36px 28px 28px; text-align: center; max-width: 320px; width: 92%;
+  box-shadow: 0 0 55px rgba(0,229,255,.1), 0 24px 75px rgba(0,0,0,.8);
+  animation: popIn .3s cubic-bezier(.34,1.56,.64,1); position: relative;
+}
+.spot-close {
+  position: absolute; top:10px; right:12px;
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(255,255,255,.07); border:1px solid var(--border);
+  color:#aaa; cursor:pointer; font-size:.85rem;
+  display:flex; align-items:center; justify-content:center; transition:all .2s;
+}
+.spot-close:hover { background:var(--red); color:#fff; }
+#spot-vis { font-size:4.6rem; display:block; margin-bottom:12px; line-height:1.1; animation:bounceV .9s ease infinite alternate; }
+@keyframes bounceV { from{transform:translateY(0)} to{transform:translateY(-9px) scale(1.06)} }
+#spot-lbl { font-family:'Baloo 2',cursive; font-size:1.8rem; font-weight:900; margin-bottom:5px; }
+#spot-info { font-size:.83rem; color:#7a8aa0; line-height:1.5; margin-bottom:14px; }
+.spot-speak {
+  font-family:'Baloo 2',cursive; font-size:.82rem; font-weight:800;
+  padding:7px 18px; border:none; border-radius:50px;
+  background:linear-gradient(135deg,var(--teal),var(--purple));
+  color:#fff; cursor:pointer; transition:transform .2s;
+}
+.spot-speak:hover { transform:scale(1.06); }
+
+/* ===== REWARD ===== */
+#reward-ovl {
+  display:none; position:fixed; inset:0; z-index:450;
+  align-items:center; justify-content:center;
+  background:rgba(0,0,0,.83); backdrop-filter:blur(14px);
+}
+#reward-ovl.show { display:flex; animation:fadeIn .3s ease; }
+.reward-box {
+  background:linear-gradient(145deg,rgba(20,28,50,.98),rgba(12,18,36,.98));
+  border:1px solid rgba(255,215,0,.2); border-radius:26px; padding:36px 32px;
+  text-align:center; max-width:320px; width:92%;
+  box-shadow:0 0 65px rgba(255,215,0,.16),0 24px 75px rgba(0,0,0,.8);
+  animation:popIn .42s cubic-bezier(.34,1.56,.64,1);
+}
+.rw-star { font-size:4.2rem; animation:spinIn .6s ease; display:block; margin-bottom:9px; }
+#rw-title { font-family:'Baloo 2',cursive; font-size:1.65rem; font-weight:900; color:var(--gold); margin-bottom:5px; }
+#rw-text { color:#aab; margin-bottom:17px; font-size:.85rem; line-height:1.5; }
+.rw-close {
+  font-family:'Baloo 2',cursive; font-size:.88rem; font-weight:900;
+  padding:9px 24px; border:none; border-radius:50px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#000; cursor:pointer; transition:transform .2s;
+}
+.rw-close:hover { transform:scale(1.06); }
+
+/* ===== MISC ===== */
+#confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:500; }
+#toast {
+  position:fixed; bottom:18px; left:50%;
+  transform:translateX(-50%) translateY(70px);
+  background:rgba(20,28,50,.96); border:1px solid var(--border);
+  border-radius:50px; padding:8px 20px; font-weight:800; font-size:.8rem; color:#fff;
+  z-index:600; transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  opacity:0; pointer-events:none;
+}
+#toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes popIn  { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
+@keyframes spinIn { from{transform:rotate(-180deg) scale(.3);opacity:0} to{transform:rotate(0) scale(1);opacity:1} }
+
+/* ===== TWEMOJI 3D FANTASY STYLE ===== */
+/* Twemoji replaces every emoji with a colorful SVG image. These rules give them
+   a premium 3D fantasy look: layered glow, depth shadow, soft saturation lift. */
+img.emoji {
+  height: 1em; width: 1em;
+  margin: 0 .05em 0 .1em;
+  vertical-align: -0.15em;
+  display: inline-block;
+  filter:
+    saturate(1.35) contrast(1.08) brightness(1.05)
+    drop-shadow(0 0 6px rgba(255,255,255,.22))
+    drop-shadow(0 4px 8px rgba(0,0,0,.5))
+    drop-shadow(0 1px 0 rgba(255,255,255,.3));
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), filter .25s;
+}
+/* Larger emojis: premium 3D fantasy aura with magical halo behind the SVG */
+.lv-emoji, .item-vis, .opt-emo, .al-icon,
+#q-visual, #spot-vis, .rw-star, .us-av {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.lv-emoji::before, .item-vis::before, .opt-emo::before,
+#q-visual::before, #spot-vis::before {
+  content:''; position:absolute; inset:-10%; z-index:0;
+  background: radial-gradient(circle at 50% 55%,
+    rgba(255,215,128,.35) 0%,
+    rgba(176,72,248,.22) 35%,
+    rgba(0,229,255,.12) 60%,
+    transparent 75%);
+  filter: blur(8px);
+  pointer-events:none;
+  animation: auraPulse 3.5s ease-in-out infinite;
+}
+#q-visual::before, #spot-vis::before { inset:-18%; filter: blur(14px); }
+@keyframes auraPulse {
+  0%,100% { opacity:.75; transform:scale(1); }
+  50%     { opacity:1;   transform:scale(1.08); }
+}
+.lv-emoji img.emoji,
+.item-vis img.emoji,
+.opt-emo img.emoji,
+.al-icon img.emoji,
+#q-visual img.emoji,
+#spot-vis img.emoji,
+.rw-star img.emoji,
+.us-av img.emoji,
+.logo img.emoji {
+  position: relative; z-index: 1;
+  filter:
+    saturate(1.45) contrast(1.12) brightness(1.06)
+    drop-shadow(0 0 10px rgba(255,215,128,.45))
+    drop-shadow(0 0 22px rgba(176,72,248,.35))
+    drop-shadow(0 8px 14px rgba(0,0,0,.6))
+    drop-shadow(0 2px 0 rgba(255,255,255,.28));
+  transform: translateZ(0);
+}
+.item-card:hover .item-vis img.emoji,
+.lv-card:not(.locked):hover .lv-emoji img.emoji,
+.opt-btn:hover .opt-emo img.emoji {
+  filter:
+    saturate(1.55) contrast(1.15) brightness(1.1)
+    drop-shadow(0 0 16px rgba(0,229,255,.6))
+    drop-shadow(0 0 30px rgba(255,77,166,.45))
+    drop-shadow(0 12px 20px rgba(0,0,0,.65));
+  transform: translateZ(0) scale(1.08) rotate(-2deg);
+}
+#q-visual img.emoji, #spot-vis img.emoji {
+  filter:
+    saturate(1.55) contrast(1.15) brightness(1.08)
+    drop-shadow(0 0 20px rgba(255,215,0,.6))
+    drop-shadow(0 0 40px rgba(176,72,248,.45))
+    drop-shadow(0 16px 24px rgba(0,0,0,.7))
+    drop-shadow(0 3px 0 rgba(255,255,255,.3));
+}
+.us-av img.emoji { height: .9em; width: .9em; margin: 0; vertical-align: middle; }
+
+/* ===== TV / ANDROID / RESPONSIVE ENHANCEMENTS ===== */
+html { -webkit-text-size-adjust: 100%; }
+@media (pointer: coarse) {
+  .opt-btn, .h-card, .lv-card, .item-card, .icon-btn, .crumb-btn { min-height: 56px; }
+}
+/* Smart-TV / large screens (1080p+) — bigger type and focus ring */
+@media (min-width: 1280px) and (min-height: 720px) {
+  body { font-size: 18px; }
+  .opt-btn { font-size: 1.15rem; padding: 22px 18px; min-height: 76px; }
+  .h-card-title { font-size: 1.7rem; }
+  #q-prompt { font-size: 1.4rem; }
+  #q-visual { font-size: 5.5rem; }
+}
+@media (min-width: 1920px) {
+  body { font-size: 22px; }
+  .page-inner { max-width: 1400px; }
+  .opts-grid { max-width: 1000px; }
+  .opt-btn { font-size: 1.4rem; min-height: 96px; }
+}
+/* D-pad / remote focus is always strongly visible */
+*:focus-visible {
+  outline: 4px solid #FFD700 !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(255,215,0,.35) !important;
+}
+/* Hide logout button (no auth in this build) */
+#btn-logout { display: none !important; }
+/* Polish emoji images everywhere — consistent crisp 3D look */
+img.emoji {
+  height: 1em; width: 1em; margin: 0 .04em; vertical-align: -0.15em;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.35)) saturate(1.15);
+}
+.item-vis img.emoji, #q-visual img.emoji, .spot-vis img.emoji, #spot-vis img.emoji,
+.lv-emoji img.emoji, .h-card-icon img.emoji, .al-icon img.emoji {
+  height: 1em; width: 1em;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,.45)) saturate(1.2) contrast(1.05);
+}
+/* Hide broken-image placeholder if a glyph fails to load */
+img.emoji[alt]:not([src]), img.emoji:not([src]) { display: none; }
+img.emoji { background: transparent; }
+
+</style>
+</head>
+<body>
+
+<div id="starfield"></div>
+
+<!-- ====== TOPBAR ====== -->
+<div id="topbar">
+  <div class="logo">🚀 Riadh For Kids Learning</div>
+  <div class="tb-right">
+    <button class="crumb-btn hidden" id="btn-home">🏠 Home</button>
+    <div class="tb-stat">⭐ <span id="tb-stars">0</span></div>
+    <div class="tb-stat">🏆 <span id="tb-levels">0/40</span></div>
+    <button class="icon-btn" id="btn-sound">🔊</button>
+    <div class="tb-user hidden" id="tb-user">
+      <div class="tb-av" id="tb-av"></div>
+      <span id="tb-name"></span>
+    </div>
+    <button class="icon-btn hidden" id="btn-logout">🚪</button>
+  </div>
+</div>
+
+<!-- ====== APP ====== -->
+<div id="app">
+
+  <!-- PAGE: AUTH -->
+  <div class="page" id="pgAuth">
+    <div class="auth-wrap">
+      <div class="auth-logo">
+        <span class="al-icon">🚀</span>
+        <h1>Riadh For Kids Learning</h1>
+        <p>Sign in to learn and play!</p>
+      </div>
+      <div class="auth-box">
+        <div class="auth-tabs">
+          <button class="auth-tab on"  id="tab-login">🔑 Sign in</button>
+          <button class="auth-tab"     id="tab-reg"  >🎉 Sign up</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="auth-panel on" id="panel-login">
+          <div class="fg">
+            <label>Username</label>
+            <input class="fi" id="l-user" type="text" placeholder="ex: petite_etoile" autocomplete="username">
+          </div>
+          <div class="fg">
+            <label>Password</label>
+            <input class="fi" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+          </div>
+          <div class="auth-err" id="l-err"></div>
+          <button class="auth-btn" id="btn-login">🔓 Sign in</button>
+          <div class="auth-switch">
+            No account?&nbsp;<span class="auth-link" id="go-reg">Sign up!</span>
+          </div>
+        </div>
+
+        <!-- REGISTER -->
+        <div class="auth-panel" id="panel-reg">
+          <div class="frow">
+            <div class="fg"><label>First name *</label><input class="fi" id="r-first" type="text" placeholder="First name"></div>
+            <div class="fg"><label>Last name</label>    <input class="fi" id="r-last"  type="text" placeholder="Last name"></div>
+          </div>
+          <div class="fg">
+            <label>Username *</label>
+            <input class="fi" id="r-user" type="text" placeholder="ex: super_hero" autocomplete="username">
+          </div>
+          <div class="frow">
+            <div class="fg"><label>Password *</label>  <input class="fi" id="r-pass"  type="password" placeholder="4+ chars" autocomplete="new-password"></div>
+            <div class="fg"><label>Confirm *</label>      <input class="fi" id="r-pass2" type="password" placeholder="Repeat"  autocomplete="new-password"></div>
+          </div>
+          <div class="fg"><label>Avatar</label>  <div class="avp" id="av-picker"></div></div>
+          <div class="fg"><label>Color</label> <div class="cop" id="col-picker"></div></div>
+          <div class="auth-err" id="r-err"></div>
+          <button class="auth-btn" id="btn-register">🎉 Create my account</button>
+          <div class="auth-switch">
+            Already registered?&nbsp;<span class="auth-link" id="go-login">Sign in!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: HOME -->
+  <div class="page" id="pgHome">
+    <div class="page-inner">
+      <div class="h-title">Riadh For Kids Learning</div>
+      <div class="h-sub" id="home-welcome">Welcome! Pick an activity 🎯</div>
+      <div class="h-grid">
+        <div class="h-card learn" id="btn-learn">
+          <div class="card-orb" style="width:90px;height:90px;background:var(--teal);top:-20px;right:-20px"></div>
+          <span class="h-card-icon">📚</span>
+          <div class="h-card-title">Learning</div>
+          <div class="h-card-desc">Colors, Numbers, Shapes, Animals, Letters, Fruits, Jobs, Transport, Weather, Body, Emotions, Seasons!</div>
+          <div class="h-card-badge" id="learn-badge">🔓 0 / 20 levels</div>
+        </div>
+        <div class="h-card game" id="btn-game">
+          <div class="card-orb" style="width:80px;height:80px;background:var(--pink);bottom:-15px;left:-15px"></div>
+          <span class="h-card-icon">🎮</span>
+          <div class="h-card-title">Game</div>
+          <div class="h-card-desc">Answer the questions with 4 choices, earn stars and unlock the next levels!</div>
+          <div class="h-card-badge" id="game-badge">🔓 0 / 20 levels</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">🏆 Leaderboard on this device</div>
+        <div id="leader-list"></div>
+      </div>
+      <div id="admin-home-area"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: LEARN SELECT -->
+  <div class="page" id="pgLS">
+    <div class="page-inner">
+      <div class="mode-hdr"><h2>📚 Learning — Choose how to learn</h2><p>Pick a display style: by level or by category</p></div>
+      <div class="ls-style-tabs" style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap">
+        <button class="auth-tab on" id="ls-tab-level" style="flex:0 0 auto;padding:10px 22px;border-radius:50px">🏆 By Level</button>
+        <button class="auth-tab"     id="ls-tab-cat"   style="flex:0 0 auto;padding:10px 22px;border-radius:50px">🗂️ By Category</button>
+      </div>
+      <div id="learn-levels"></div>
+      <div id="learn-cats" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: LEARN PLAY -->
+  <div class="page" id="pgLP">
+    <div class="page-inner">
+      <div class="play-hdr">
+        <button class="back-btn" id="btn-lback">← Levels</button>
+        <div class="lv-info">
+          <div class="lv-tag"  id="l-tag"></div>
+          <div class="lv-prog" id="l-prog"></div>
+        </div>
+      </div>
+      <div class="cat-title" id="cat-title"></div>
+      <div class="cat-sub"   id="cat-sub"></div>
+      <div class="items-grid" id="items-grid"></div>
+      <div class="prog-row">
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-txt" id="prog-txt">0/0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE: GAME SELECT -->
+  <div class="page" id="pgGS">
+    <div class="page-inner">
+      <div class="mode-hdr"><h2>🎮 Game — Choose a level</h2><p>Answer quickly and correctly to earn stars!</p></div>
+      <div id="game-levels"></div>
+    </div>
+  </div>
+
+  <!-- PAGE: GAME PLAY -->
+  <div class="page" id="pgGP">
+    <div class="page-inner">
+      <div class="play-hdr">
+        <button class="back-btn" id="btn-gback">← Levels</button>
+        <div class="lv-info"><div class="lv-tag" id="g-tag"></div></div>
+      </div>
+      <div class="game-hdr">
+        <div class="game-title" id="g-title">Level 1</div>
+        <div class="game-sub"   id="g-sub"></div>
+      </div>
+      <div class="score-bar">
+        <div class="sc-item">✅ <span id="g-correct">0</span></div>
+        <div class="sc-item">❌ <span id="g-wrong">0</span></div>
+        <div class="sc-item">🎯 Round <span id="g-round">1</span>/<span id="g-total">5</span></div>
+      </div>
+      <div id="q-card">
+        <div id="q-round-badge"></div>
+        <div id="q-prompt">What is this?</div>
+        <span id="q-visual">🌟</span>
+      </div>
+      <div class="opts-grid" id="opts-grid"></div>
+      <div id="feedback-msg"></div>
+      <div style="text-align:center"><button id="next-btn">Next →</button></div>
+    </div>
+  </div>
+
+  <!-- PAGE: ADMIN -->
+  <div class="page" id="pgAdmin">
+    <div class="page-inner">
+      <div class="play-hdr">
+        <button class="back-btn" id="btn-aback">← Home</button>
+        <div class="lv-tag" style="color:var(--gold)">⚙️ Admin</div>
+      </div>
+      <div class="mode-hdr"><h2>⚙️ Admin Dashboard</h2><p>Detailed stats for all users</p></div>
+      <div id="admin-content"></div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- SPOTLIGHT -->
+<div id="spotlight">
+  <div class="spot-box">
+    <button class="spot-close" id="btn-spot-close">✕</button>
+    <span id="spot-vis"></span>
+    <div id="spot-lbl"></div>
+    <div id="spot-info"></div>
+    <button class="spot-speak" id="btn-spot-speak">🔊 Listen</button>
+  </div>
+</div>
+
+<!-- REWARD -->
+<div id="reward-ovl">
+  <div class="reward-box">
+    <span class="rw-star">🌟</span>
+    <div id="rw-title">Well done!</div>
+    <div id="rw-text"></div>
+    <button class="rw-close" id="btn-rw-close">Continue 🚀</button>
+  </div>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="toast"></div>
+
+<!-- ====================================================
+     JAVASCRIPT  —  loaded at end of body, DOM is ready
+     ==================================================== -->
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
+
+  /* ---------- SCREEN MANAGER ---------- */
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(function (p) { p.classList.remove('active'); });
+    var pg = $(id);
+    if (pg) pg.classList.add('active');
+    $('btn-home').classList.toggle('hidden', id === 'pgAuth' || id === 'pgHome');
+  }
+
+  /* ---------- USER STORAGE ---------- */
+  var UK = 'rfk_u5', SK = 'rfk_s5';
+  function getUsers() { try { return JSON.parse(localStorage.getItem(UK) || '[]'); } catch(e) { return []; } }
+  function saveUsers(u) { try { localStorage.setItem(UK, JSON.stringify(u)); } catch(e) {} }
+  function getSession() { try { return localStorage.getItem(SK) || ''; } catch(e) { return ''; } }
+  function setSession(u) { try { localStorage.setItem(SK, u); } catch(e) {} }
+  function clearSession() { try { localStorage.removeItem(SK); } catch(e) {} }
+
+  var CU = null;   // current user object
+  var sndOn = true;
+
+  function saveCurrentUser() {
+    if (!CU || CU.isAdmin) return;
+    var users = getUsers();
+    var i = users.findIndex(function (u) { return u.username === CU.username; });
+    if (i >= 0) users[i] = CU; else users.push(CU);
+    saveUsers(users);
+  }
+
+  function loadSession() {
+    var s = getSession();
+    if (!s) return false;
+    if (s === 'Admin') { CU = makeAdmin(); return true; }
+    var u = getUsers().find(function (x) { return x.username === s; });
+    if (!u) return false;
+    CU = u; return true;
+  }
+
+  function makeAdmin() {
+    return { username:'Admin', firstName:'Admin', lastName:'', avatar:'⚙️', color:'#FFD700',
+      isAdmin:true, stars:0, learnDone:{}, learnSeen:{}, gameDone:{}, gameStars:{},
+      joinDate: new Date().toISOString() };
+  }
+
+  /* ---------- AUTH TABS ---------- */
+  function switchTab(tab) {
+    var panels = { login: $('panel-login'), reg: $('panel-reg') };
+    var tabs   = { login: $('tab-login'),   reg: $('tab-reg')   };
+    Object.keys(panels).forEach(function (k) {
+      panels[k].classList.toggle('on', k === tab);
+      tabs[k].classList.toggle('on', k === tab);
+    });
+    $('l-err').textContent = '';
+    $('r-err').textContent = '';
+  }
+
+  /* ---------- LOGIN ---------- */
+  function doLogin() {
+    var u = $('l-user').value.trim();
+    var p = $('l-pass').value;
+    $('l-err').textContent = '';
+    if (!u || !p) { $('l-err').textContent = 'Please fill in all fields!'; return; }
+    if (u === 'Admin' && p === '10203040') { CU = makeAdmin(); setSession('Admin'); afterLogin(); return; }
+    var usr = getUsers().find(function (x) { return x.username === u; });
+    if (!usr)          { $('l-err').textContent = 'User not found!'; return; }
+    if (usr.password !== p) { $('l-err').textContent = 'Password incorrect !';  return; }
+    CU = usr; setSession(u); afterLogin();
+  }
+
+  /* ---------- REGISTER ---------- */
+  var selAv = '🐱', selCol = '#448AFF';
+  var AVATARS = ['🐱','🐶','🐸','🦋','🐰','🐻','🦁','🐯','🦊','🐼','🐨','🦄','🐳','🦖','🚀','🌟','🎮','🎨','🏆','🌈'];
+  var COLORS  = ['#FF5252','#FF9100','#FFD700','#00E676','#00E5FF','#448AFF','#B048F8','#FF4DA6','#FF6B6B','#4ECDC4'];
+
+  function buildPickers() {
+    var avp = $('av-picker'); avp.innerHTML = '';
+    AVATARS.forEach(function (a, i) {
+      var d = el('div', 'avo' + (i === 0 ? ' on' : '')); d.textContent = a;
+      d.addEventListener('click', function () {
+        selAv = a;
+        avp.querySelectorAll('.avo').forEach(function (x) { x.classList.remove('on'); });
+        d.classList.add('on');
+      });
+      avp.appendChild(d);
+    });
+    var cop = $('col-picker'); cop.innerHTML = '';
+    COLORS.forEach(function (c, i) {
+      var d = el('div', 'co' + (i === 0 ? ' on' : '')); d.style.background = c;
+      d.addEventListener('click', function () {
+        selCol = c;
+        cop.querySelectorAll('.co').forEach(function (x) { x.classList.remove('on'); });
+        d.classList.add('on');
+      });
+      cop.appendChild(d);
+    });
+  }
+
+  function doRegister() {
+    var f  = $('r-first').value.trim();
+    var l  = $('r-last').value.trim();
+    var u  = $('r-user').value.trim();
+    var p  = $('r-pass').value;
+    var p2 = $('r-pass2').value;
+    $('r-err').textContent = '';
+    if (!f || !u || !p || !p2) { $('r-err').textContent = 'Please fill all required (*) fields!'; return; }
+    if (p.length < 4)          { $('r-err').textContent = 'Password trop court (4 min) !'; return; }
+    if (p !== p2)              { $('r-err').textContent = 'Passwords do not match!'; return; }
+    if (u === 'Admin')         { $('r-err').textContent = 'This name is reserved!'; return; }
+    var users = getUsers();
+    if (users.find(function (x) { return x.username === u; })) { $('r-err').textContent = 'Nom d\'utilisateur déjà pris !'; return; }
+    var nu = { username:u, password:p, firstName:f, lastName:l, avatar:selAv, color:selCol,
+      isAdmin:false, stars:0, learnDone:{}, learnSeen:{}, gameDone:{}, gameStars:{},
+      joinDate: new Date().toISOString(), lastPlay: null };
+    users.push(nu); saveUsers(users);
+    CU = nu; setSession(u); afterLogin();
+  }
+
+  function afterLogin() {
+    updTopbar(); showPage('pgHome'); updHome();
+    speak('Welcome ' + CU.firstName + ' !');
+    tone(880, 'triangle', 0.18);
+  }
+
+  function doLogout() {
+    clearSession(); CU = null;
+    ['btn-home','tb-user','btn-logout'].forEach(function (id) { $(id).classList.add('hidden'); });
+    $('l-user').value = ''; $('l-pass').value = '';
+    switchTab('login');
+    showPage('pgAuth');
+  }
+
+  /* ---------- TOPBAR ---------- */
+  function updTopbar() {
+    if (!CU) return;
+    var ld = Object.keys(CU.learnDone || {}).length;
+    var gd = Object.keys(CU.gameDone  || {}).length;
+    $('tb-stars').textContent  = CU.stars || 0;
+    $('tb-levels').textContent = (ld + gd) + '/40';
+    var av = $('tb-av');
+    av.textContent = CU.avatar || '😊'; av.style.background = CU.color || '#B048F8';
+    $('tb-name').textContent = CU.firstName || CU.username;
+    $('tb-user').classList.remove('hidden');
+    $('btn-logout').classList.remove('hidden');
+  }
+
+  /* ---------- HOME ---------- */
+  function updHome() {
+    if (!CU) return;
+    $('home-welcome').textContent = 'Welcome ' + CU.firstName + ' ! Choisis ton activité 🎯';
+    var ld = Object.keys(CU.learnDone || {}).length;
+    var gd = Object.keys(CU.gameDone  || {}).length;
+    $('learn-badge').textContent = '🔓 ' + ld + ' / 20 levels';
+    $('game-badge').textContent  = '🔓 ' + gd + ' / 20 niveaux';
+    buildLeaderboard();
+    var area = $('admin-home-area'); area.innerHTML = '';
+    if (CU.isAdmin) {
+      var btn = el('button', 'auth-btn');
+      btn.style.cssText = 'max-width:680px;display:block;margin:18px auto 0;background:linear-gradient(135deg,#FFD700,#FF9100);color:#000';
+      btn.textContent = '⚙️ Admin Dashboard';
+      btn.addEventListener('click', function () { buildAdmin(); showPage('pgAdmin'); });
+      area.appendChild(btn);
+    }
+  }
+
+  /* ---------- LEADERBOARD ---------- */
+  function buildLeaderboard() {
+    var users = getUsers().map(function (u) {
+      return { username:u.username, firstName:u.firstName, lastName:u.lastName||'',
+        avatar:u.avatar, color:u.color, stars:u.stars||0,
+        done: Object.keys(u.learnDone||{}).length + Object.keys(u.gameDone||{}).length };
+    }).sort(function (a,b) { return b.stars - a.stars || b.done - a.done; });
+
+    var list = $('leader-list'); list.innerHTML = '';
+    if (!users.length) {
+      list.innerHTML = '<p style="color:#7a8aa0;text-align:center;font-size:.82rem;padding:14px">No players yet — be the first! 🌟</p>';
+      return;
+    }
+    users.slice(0, 10).forEach(function (u, i) {
+      var rk = i + 1;
+      var re = rk === 1 ? '🥇' : rk === 2 ? '🥈' : rk === 3 ? '🥉' : '' + rk;
+      var card = el('div', 'leader-card');
+      var me = CU && u.username === CU.username;
+      if (me) card.style.borderColor = 'var(--gold)';
+      card.innerHTML =
+        '<div class="rank">' + re + '</div>' +
+        '<div class="leader-av" style="background:' + (u.color||'#B048F8') + '">' + (u.avatar||'😊') + '</div>' +
+        '<div class="leader-info">' +
+          '<div class="leader-name">' + u.firstName + ' ' + u.lastName + (me ? ' <span style="color:var(--gold)">(You)</span>' : '') + '</div>' +
+          '<div class="leader-stats">@' + u.username + ' · ' + u.done + ' levels</div>' +
+        '</div>' +
+        '<div class="leader-score">⭐ ' + u.stars + '</div>';
+      list.appendChild(card);
+    });
+  }
+
+  /* ---------- ADMIN ---------- */
+  function buildAdmin() {
+    var us = getUsers(), c = $('admin-content'); c.innerHTML = '';
+    var ts = us.reduce(function(s,u){return s+(u.stars||0);},0);
+    var tl = us.reduce(function(s,u){return s+Object.keys(u.learnDone||{}).length+Object.keys(u.gameDone||{}).length;},0);
+    var g = el('div','admin-grid');
+    g.innerHTML =
+      '<div class="admin-card"><h3>📊 Overview</h3>' +
+        '<div class="stat-row"><span>👥 Users</span><span class="stat-val">' + us.length + '</span></div>' +
+        '<div class="stat-row"><span>⭐ Total stars</span><span class="stat-val">' + ts + '</span></div>' +
+        '<div class="stat-row"><span>🏆 Levels cleared</span><span class="stat-val">' + tl + '</span></div>' +
+        '<div class="stat-row"><span>📚 Categories</span><span class="stat-val">' + CKEYS.length + '</span></div>' +
+      '</div>' +
+      '<div class="admin-card"><h3>🏅 Top players</h3>' +
+        us.sort(function(a,b){return (b.stars||0)-(a.stars||0);}).slice(0,5).map(function(u,i){
+          return '<div class="stat-row"><span>' + ['🥇','🥈','🥉','4.','5.'][i] + ' ' + u.firstName + ' <span style="color:#7a8aa0">@' + u.username + '</span></span><span class="stat-val">⭐' + (u.stars||0) + '</span></div>';
+        }).join('') +
+      '</div>';
+    c.appendChild(g);
+    var t = el('div','section-title'); t.style.marginTop='24px'; t.textContent='👤 Per-user details'; c.appendChild(t);
+    if (!us.length) { c.innerHTML += '<p style="color:#7a8aa0;text-align:center">No users registered.</p>'; return; }
+    us.forEach(function(u) {
+      var ld=Object.keys(u.learnDone||{}).length, gd=Object.keys(u.gameDone||{}).length;
+      var lP=Math.round(ld/20*100), gP=Math.round(gd/20*100);
+      var jd=u.joinDate?new Date(u.joinDate).toLocaleDateString('en-US'):'?';
+      var lp=u.lastPlay?new Date(u.lastPlay).toLocaleDateString('en-US'):'Never';
+      var card=el('div','user-stat'); c.appendChild(card);
+      card.innerHTML=
+        '<div class="ush"><div class="us-av" style="background:'+(u.color||'#B048F8')+'">'+(u.avatar||'😊')+'</div>'+
+        '<div><div class="us-name">'+u.firstName+' '+(u.lastName||'')+' <span style="color:#7a8aa0;font-size:.76rem">@'+u.username+'</span></div>'+
+        '<div class="us-join">Inscrit le '+jd+' · Dernière partie : '+lp+'</div></div></div>'+
+        '<div class="mini-stats">'+
+          '<div class="mini-stat">⭐<br><b>'+(u.stars||0)+'</b><br>Stars</div>'+
+          '<div class="mini-stat">📚<br><b>'+ld+'/20</b><br>Learn</div>'+
+          '<div class="mini-stat">🎮<br><b>'+gd+'/20</b><br>Game</div>'+
+        '</div>'+
+        '<div style="font-size:.7rem;color:#7a8aa0;margin-bottom:2px">📚 Learning '+lP+'%</div>'+
+        '<div class="mini-bar"><div class="mini-fill" style="width:'+lP+'%"></div></div>'+
+        '<div style="font-size:.7rem;color:#7a8aa0;margin:6px 0 2px">🎮 Game '+gP+'%</div>'+
+        '<div class="mini-bar"><div class="mini-fill" style="width:'+gP+'%;background:linear-gradient(90deg,var(--pink),var(--gold))"></div></div>';
+    });
+  }
+
+  /* ---------- CATEGORIES DATA ---------- */
+  var CAT = {
+    colors:   {name:'Colors',         emoji:'🎨',color:'#00E5FF',glow:'rgba(0,229,255,.2)',  sP:'The color ', sS:'', items:[
+      {l:'Red',v:'🔴',i:'Red is the color of roses.'},{l:'Blue',v:'🔵',i:'Blue is the color of the sky.'},
+      {l:'Green',v:'🟢',i:'Green is the color of nature.'},{l:'Yellow',v:'🟡',i:'Yellow shines like the sun.'},
+      {l:'Orange',v:'🟠',i:'Orange is warm and joyful.'},{l:'Purple',v:'🟣',i:'Purple is a royal color.'},
+      {l:'Pink',v:'🩷',i:'Pink is soft like flowers.'},{l:'Brown',v:'🟤',i:'Brown is the color of earth.'},
+      {l:'White',v:'⬜',i:'White like the snow.'},{l:'Black',v:'⬛',i:'Black like the night.'},
+      {l:'Gray',v:'🩶',i:'Gray is between white and black.'},{l:'Gold',v:'🌟',i:'Gold shines like a treasure.'},
+      {l:'Turquoise',v:'💠',i:'Turquoise like the sea.'},{l:'Coral',v:'🪸',i:'Coral is pinkish orange.'},
+      {l:'Indigo',v:'💜',i:'Indigo is deep blue-purple.'},{l:'Cyan',v:'🔷',i:'Cyan is bright blue-green.'},
+      {l:'Magenta',v:'🌺',i:'Magenta is a very vivid pink.'},{l:'Beige',v:'🏜️',i:'Beige is the color of sand.'},
+      {l:'Lavender',v:'🪻',i:'Lavender is a soft purple.'},{l:'Silver',v:'🔘',i:'Silver shines like the moon.'},
+    ]},
+    numbers:  {name:'Numbers',        emoji:'🔢',color:'#4ECDC4',glow:'rgba(78,205,196,.2)', sP:'The number ', sS:'', items:[
+      {l:'Zero',v:'0️⃣',i:'Zero — nothing at all!'},{l:'One',v:'1️⃣',i:'One — a single apple.'},
+      {l:'Two',v:'2️⃣',i:'Two — your two eyes.'},{l:'Three',v:'3️⃣',i:'Three — wheels on a tricycle.'},
+      {l:'Four',v:'4️⃣',i:'Four — a dog has four legs.'},{l:'Five',v:'5️⃣',i:'Five — fingers on one hand.'},
+      {l:'Six',v:'6️⃣',i:'Six — faces on a dice.'},{l:'Seven',v:'7️⃣',i:'Seven — days in a week.'},
+      {l:'Eight',v:'8️⃣',i:'Eight — arms of an octopus.'},{l:'Nine',v:'9️⃣',i:'Nine — holes in golf.'},
+      {l:'Ten',v:'🔟',i:'Ten — toes on two feet.'},{l:'Eleven',v:'1️⃣1️⃣',i:'Eleven — players on a soccer team.'},
+      {l:'Twelve',v:'🕛',i:'Twelve — months in a year.'},{l:'Twenty',v:'🔢',i:'Twenty — two times ten!'},
+      {l:'Fifty',v:'🏅',i:'Fifty — half of a hundred!'},{l:'One Hundred',v:'💯',i:'One hundred — a perfect score!'},
+      {l:'Thirteen',v:'🍀',i:'Thirteen — a lucky number?'},{l:'Fifteen',v:'🏉',i:'Fifteen — points in rugby!'},
+      {l:'Twenty-Five',v:'🎁',i:'Twenty-five — a beautiful gift!'},{l:'One Thousand',v:'🔥',i:'One thousand — a huge number!'},
+    ]},
+    shapes:   {name:'Shapes',         emoji:'🔷',color:'#FFD93D',glow:'rgba(255,217,61,.2)', sP:'The shape ', sS:'', items:[
+      {l:'Circle',v:'⭕',i:'A circle is perfectly round!'},{l:'Square',v:'🟥',i:'A square has 4 equal sides!'},
+      {l:'Triangle',v:'🔺',i:'A triangle has 3 sides!'},{l:'Rectangle',v:'🟦',i:'A rectangle has 2 long and 2 short sides!'},
+      {l:'Star',v:'⭐',i:'A star has 5 points!'},{l:'Heart',v:'❤️',i:'A heart stands for love!'},
+      {l:'Diamond',v:'💎',i:'A diamond sparkles brightly!'},{l:'Oval',v:'🥚',i:'An oval is a stretched circle!'},
+      {l:'Hexagon',v:'🔶',i:'A hexagon has 6 sides!'},{l:'Octagon',v:'🛑',i:'An octagon has 8 sides!'},
+      {l:'Crescent',v:'🌙',i:'A crescent looks like the moon!'},{l:'Spiral',v:'🌀',i:'A spiral turns around!'},
+      {l:'Arrow',v:'➡️',i:'An arrow points the direction!'},{l:'Rainbow',v:'🌈',i:'A rainbow has 7 colors!'},
+      {l:'Rhombus',v:'🔸',i:'A rhombus has 4 slanted sides!'},{l:'Pentagon',v:'⬠',i:'A pentagon has 5 sides!'},
+      {l:'Cylinder',v:'🥫',i:'A cylinder is a round tube!'},{l:'Cube',v:'🎲',i:'A cube has 6 square faces!'},
+      {l:'Pyramid',v:'🏔️',i:'A pyramid has a square base!'},{l:'Cross',v:'✚',i:'A cross has 4 equal arms!'},
+    ]},
+    animals:  {name:'Animals',        emoji:'🐾',color:'#00E676',glow:'rgba(0,230,118,.2)',  sP:'The ', sS:'', items:[
+      {l:'Cat',v:'🐱',i:'Cats say meow!'},{l:'Dog',v:'🐶',i:'Dogs say woof!'},
+      {l:'Elephant',v:'🐘',i:'The largest land animal!'},{l:'Lion',v:'🦁',i:'The lion is king of the jungle!'},
+      {l:'Giraffe',v:'🦒',i:'The giraffe has the longest neck!'},{l:'Penguin',v:'🐧',i:'Penguins love the cold!'},
+      {l:'Rabbit',v:'🐰',i:'Rabbits love carrots!'},{l:'Frog',v:'🐸',i:'Frogs jump very high!'},
+      {l:'Butterfly',v:'🦋',i:'Butterflies come from caterpillars!'},{l:'Dolphin',v:'🐬',i:'Dolphins are very smart!'},
+      {l:'Turtle',v:'🐢',i:'The turtle carries its home!'},{l:'Parrot',v:'🦜',i:'Parrots can talk!'},
+      {l:'Bear',v:'🐻',i:'Bears hibernate in winter!'},{l:'Monkey',v:'🐒',i:'Monkeys love bananas!'},
+      {l:'Owl',v:'🦉',i:'Owls see in the dark!'},{l:'Tiger',v:'🐯',i:'The tiger has orange stripes!'},
+      {l:'Zebra',v:'🦓',i:'The zebra has black and white stripes!'},{l:'Flamingo',v:'🦩',i:'The pink flamingo is so elegant!'},
+      {l:'Crocodile',v:'🐊',i:'The crocodile is an ancient reptile!'},{l:'Whale',v:'🐋',i:'The whale is the largest animal!'},
+    ]},
+    letters:  {name:'Letters',        emoji:'🔤',color:'#B048F8',glow:'rgba(176,72,248,.2)', sP:'The letter ', sS:'', items:[
+      {l:'A',v:'🅰️',i:'A is for Airplane.'},{l:'B',v:'🅱️',i:'B is for Balloon.'},
+      {l:'C',v:'🌙',i:'C is for Cat.'},{l:'D',v:'🦖',i:'D is for Dinosaur.'},
+      {l:'E',v:'⭐',i:'E is for Elephant.'},{l:'F',v:'🌸',i:'F is for Flower.'},
+      {l:'G',v:'🦒',i:'G is for Giraffe.'},{l:'H',v:'🏠',i:'H is for House.'},
+      {l:'I',v:'🏝️',i:'I is for Island.'},{l:'J',v:'🌴',i:'J is for Jungle.'},
+      {l:'K',v:'🐨',i:'K is for Koala.'},{l:'L',v:'🦁',i:'L is for Lion.'},
+      {l:'M',v:'🌕',i:'M is for Moon.'},{l:'N',v:'🪹',i:'N is for Nest.'},
+      {l:'O',v:'🍊',i:'O is for Orange.'},{l:'P',v:'🦋',i:'P is for Pretty butterfly.'},
+      {l:'Q',v:'👑',i:'Q is for Queen.'},{l:'R',v:'🌹',i:'R is for Rose.'},
+      {l:'S',v:'☀️',i:'S is for Sun.'},{l:'T',v:'🐯',i:'T is for Tiger.'},
+    ]},
+    fruits:   {name:'Fruits & Veggies',emoji:'🍎',color:'#FF4DA6',glow:'rgba(255,77,166,.2)',sP:'The ', sS:'', items:[
+      {l:'Apple',v:'🍎',i:'The apple crunches in your mouth!'},{l:'Banana',v:'🍌',i:'The banana is yellow and sweet!'},
+      {l:'Orange',v:'🍊',i:'The orange is round and juicy!'},{l:'Strawberry',v:'🍓',i:'The strawberry is red and sweet!'},
+      {l:'Grapes',v:'🍇',i:'Grapes grow in bunches!'},{l:'Cherry',v:'🍒',i:'The cherry is small and red!'},
+      {l:'Watermelon',v:'🍉',i:'Watermelon is refreshing in summer!'},{l:'Pineapple',v:'🍍',i:'The pineapple is tropical and sweet!'},
+      {l:'Mango',v:'🥭',i:'The mango is a tropical fruit!'},{l:'Blueberry',v:'🫐',i:'The blueberry is small and blue!'},
+      {l:'Carrot',v:'🥕',i:'The carrot is orange and crunchy!'},{l:'Broccoli',v:'🥦',i:'Broccoli is green and healthy!'},
+      {l:'Corn',v:'🌽',i:'Corn is yellow and golden!'},{l:'Tomato',v:'🍅',i:'The tomato is red like a ball!'},
+      {l:'Eggplant',v:'🍆',i:'The eggplant is purple!'},{l:'Cucumber',v:'🥒',i:'The cucumber is fresh and green!'},
+      {l:'Mushroom',v:'🍄',i:'Mushrooms grow in the woods!'},{l:'Avocado',v:'🥑',i:'The avocado is green and creamy!'},
+      {l:'Lemon',v:'🍋',i:'The lemon is yellow and sour!'},{l:'Coconut',v:'🥥',i:'The coconut comes from the tropics!'},
+    ]},
+    jobs:     {name:'Jobs',           emoji:'👩‍⚕️',color:'#448AFF',glow:'rgba(68,138,255,.2)', sP:'The job: ', sS:'', items:[
+      {l:'Doctor',v:'👨‍⚕️',i:'The doctor heals sick people!'},{l:'Firefighter',v:'🧑‍🚒',i:'The firefighter puts out fires!'},
+      {l:'Teacher',v:'👩‍🏫',i:'The teacher teaches children!'},{l:'Cook',v:'👨‍🍳',i:'The cook makes tasty meals!'},
+      {l:'Police Officer',v:'👮',i:'The police officer protects citizens!'},{l:'Astronaut',v:'👨‍🚀',i:'The astronaut travels in space!'},
+      {l:'Pilot',v:'👨‍✈️',i:'The pilot flies airplanes!'},{l:'Farmer',v:'👨‍🌾',i:'The farmer grows vegetables!'},
+      {l:'Scientist',v:'👩‍🔬',i:'The scientist runs experiments!'},{l:'Artist',v:'👩‍🎨',i:'The artist paints pictures!'},
+      {l:'Musician',v:'👨‍🎤',i:'The musician plays music!'},{l:'Vet',v:'🐾',i:'The vet treats animals!'},
+      {l:'Architect',v:'👷',i:'The architect designs houses!'},{l:'Driver',v:'🚌',i:'The driver drives the bus!'},
+      {l:'Baker',v:'🥐',i:'The baker makes bread!'},{l:'Plumber',v:'🔧',i:'The plumber fixes pipes!'},
+      {l:'Gardener',v:'🌱',i:'The gardener cares for gardens!'},{l:'Photographer',v:'📸',i:'The photographer takes pictures!'},
+      {l:'Lawyer',v:'⚖️',i:'The lawyer defends rights!'},{l:'Nurse',v:'👩‍⚕️',i:'The nurse helps patients!'},
+    ]},
+    transport:{name:'Transport',      emoji:'🚗',color:'#FF9100',glow:'rgba(255,145,0,.2)',  sP:'The ', sS:'', items:[
+      {l:'Car',v:'🚗',i:'The car drives on the road!'},{l:'Bus',v:'🚌',i:'The bus carries many passengers!'},
+      {l:'Train',v:'🚂',i:'The train rolls on rails!'},{l:'Airplane',v:'✈️',i:'The airplane flies in the sky!'},
+      {l:'Boat',v:'🚢',i:'The boat sails on water!'},{l:'Bike',v:'🚲',i:'You pedal the bike to move!'},
+      {l:'Motorcycle',v:'🏍️',i:'The motorcycle goes very fast!'},{l:'Helicopter',v:'🚁',i:'The helicopter has spinning blades!'},
+      {l:'Rocket',v:'🚀',i:'The rocket travels into space!'},{l:'Tractor',v:'🚜',i:'The tractor works on the farm!'},
+      {l:'Taxi',v:'🚕',i:'The taxi drives passengers around town!'},{l:'Ambulance',v:'🚑',i:'The ambulance carries the injured!'},
+      {l:'Truck',v:'🚛',i:'The truck carries heavy loads!'},{l:'Scooter',v:'🛴',i:'The scooter is fun and eco-friendly!'},
+      {l:'Hot Air Balloon',v:'🎈',i:'The hot air balloon flies with warm air!'},{l:'Skateboard',v:'🛹',i:'The skateboard glides on the road!'},
+      {l:'Sailboat',v:'⛵',i:'The sailboat uses the wind!'},{l:'Kayak',v:'🛶',i:'You paddle the kayak on water!'},
+      {l:'Cable Car',v:'🚡',i:'The cable car goes up the mountain!'},{l:'Submarine',v:'🌊',i:'The submarine dives in the sea!'},
+    ]},
+    weather:  {name:'Weather',        emoji:'⛅',color:'#00E5FF',glow:'rgba(0,229,255,.2)',  sP:'The weather: ', sS:'', items:[
+      {l:'Sun',v:'☀️',i:'The sun warms the Earth!'},{l:'Rain',v:'🌧️',i:'Rain waters the plants!'},
+      {l:'Snow',v:'❄️',i:'Snow is cold and white!'},{l:'Wind',v:'💨',i:'The wind blows the leaves!'},
+      {l:'Cloud',v:'☁️',i:'Clouds bring the rain!'},{l:'Storm',v:'⛈️',i:'A storm has thunder and lightning!'},
+      {l:'Rainbow',v:'🌈',i:'The rainbow has 7 colors!'},{l:'Fog',v:'🌫️',i:'Fog makes everything blurry!'},
+      {l:'Tornado',v:'🌪️',i:'A tornado spins very fast!'},{l:'Partly Cloudy',v:'🌤️',i:'Some clouds and sun!'},
+      {l:'Moon',v:'🌙',i:'The moon lights up the night!'},{l:'Shooting Star',v:'🌠',i:'Make a wish on a shooting star!'},
+      {l:'Thermometer',v:'🌡️',i:'The thermometer measures temperature!'},{l:'Umbrella',v:'☂️',i:'The umbrella protects from rain!'},
+      {l:'Hot',v:'🥵',i:'Heat feels warm!'},{l:'Cold',v:'🥶',i:'Cold gives you chills!'},
+      {l:'Hurricane',v:'🌀',i:'A hurricane is a tropical storm!'},{l:'Hail',v:'🧊',i:'Hail falls like ice!'},
+      {l:'Sunrise',v:'🌅',i:'Sunrise is the start of the day!'},{l:'Sunset',v:'🌇',i:'The sunset is beautiful!'},
+    ]},
+    body:     {name:'Human Body',     emoji:'🫀',color:'#FF5252',glow:'rgba(255,82,82,.2)',  sP:'The ', sS:'', items:[
+      {l:'Head',v:'🗣️',i:'The head holds the brain!'},{l:'Eyes',v:'👀',i:'Eyes are for seeing!'},
+      {l:'Ears',v:'👂',i:'Ears are for hearing!'},{l:'Nose',v:'👃',i:'The nose smells things!'},
+      {l:'Mouth',v:'👄',i:'The mouth is for talking and eating!'},{l:'Hand',v:'✋',i:'A hand has 5 fingers!'},
+      {l:'Foot',v:'🦶',i:'A foot has 5 toes!'},{l:'Heart',v:'❤️',i:'The heart pumps blood!'},
+      {l:'Brain',v:'🧠',i:'The brain controls the body!'},{l:'Teeth',v:'🦷',i:'Teeth are for chewing!'},
+      {l:'Leg',v:'🦵',i:'Legs are for walking!'},{l:'Arm',v:'💪',i:'Arms are for lifting!'},
+      {l:'Stomach',v:'🫃',i:'The stomach digests food!'},{l:'Skin',v:'🩹',i:'Skin protects our body!'},
+      {l:'Hair',v:'💇',i:'Hair grows on the head!'},{l:'Tongue',v:'👅',i:'The tongue helps you taste and talk!'},
+      {l:'Lungs',v:'🫁',i:'Lungs help us breathe!'},{l:'Skeleton',v:'💀',i:'The skeleton is the body frame!'},
+      {l:'Spine',v:'🦴',i:'The spine keeps us upright!'},{l:'Muscle',v:'🦾',i:'Muscles let us move!'},
+    ]},
+    emotions: {name:'Emotions',       emoji:'😊',color:'#FFD700',glow:'rgba(255,215,0,.2)',  sP:"Feeling: ", sS:'', items:[
+      {l:'Happy',v:'😄',i:'I am happy when I play!'},{l:'Sad',v:'😢',i:'I am sad when I am alone!'},
+      {l:'Angry',v:'😡',i:'I am angry when it is unfair!'},{l:'Surprised',v:'😲',i:'I am surprised by the unexpected!'},
+      {l:'Scared',v:'😨',i:'I am scared of the dark!'},{l:'Love',v:'🥰',i:'I love my family!'},
+      {l:'Tired',v:'😴',i:'I am tired after playing!'},{l:'Excited',v:'🤩',i:'I am excited at Christmas!'},
+      {l:'Confused',v:'😕',i:"I am confused when I don't understand!"},{l:'Proud',v:'😎',i:'I am proud when I succeed!'},
+      {l:'Disgusted',v:'🤢',i:'I am disgusted by bad smells!'},{l:'Anxious',v:'😰',i:'I am anxious before a test!'},
+      {l:'Calm',v:'😌',i:'I am calm when I breathe slowly!'},{l:'Embarrassed',v:'😳',i:'I am embarrassed when I make a mistake!'},
+      {l:'Grateful',v:'🙏',i:'I am grateful for gifts!'},{l:'Impatient',v:'😤',i:'I am impatient to open my gifts!'},
+      {l:'Brave',v:'💪',i:'I am brave facing my fears!'},{l:'Joyful',v:'😊',i:'I am joyful every day!'},
+      {l:'Jealous',v:'😒',i:"I am jealous when my friend has a toy!"},{l:'Nostalgic',v:'🥹',i:'I remember with emotion!'},
+    ]},
+    seasons:  {name:'Seasons',        emoji:'🍂',color:'#FF9100',glow:'rgba(255,145,0,.2)',  sP:'', sS:'', items:[
+      {l:'Spring',v:'🌸',i:'Spring: flowers and renewal!'},{l:'Summer',v:'☀️',i:'Summer: warmth and vacation!'},
+      {l:'Autumn',v:'🍂',i:'Autumn: falling leaves!'},{l:'Winter',v:'❄️',i:'Winter: cold and snow!'},
+      {l:'January',v:'🎆',i:'January — the first month of the year!'},{l:'February',v:'❤️',i:"February — Valentine's day!"},
+      {l:'March',v:'🌱',i:'March — start of spring!'},{l:'April',v:'🌼',i:'April — month of flowers!'},
+      {l:'May',v:'🌺',i:'May — month of lily of the valley!'},{l:'June',v:'🏖️',i:'June — start of vacation!'},
+      {l:'July',v:'🎑',i:'July — national holiday!'},{l:'August',v:'🌅',i:'August — long vacations!'},
+      {l:'September',v:'📚',i:'September — back to school!'},{l:'October',v:'🎃',i:'October — Halloween!'},
+      {l:'November',v:'🍁',i:'November — fallen leaves!'},{l:'December',v:'🎄',i:'December — Christmas!'},
+      {l:'Solstice',v:'🌞',i:'The solstice: the longest day!'},{l:'Equinox',v:'⚖️',i:'The equinox: 12 hours day and night!'},
+      {l:'Full Moon',v:'🌕',i:'The full moon lights the night!'},{l:'New Moon',v:'🌑',i:'The new moon is invisible!'},
+    ]},
+  };
+  var CKEYS = Object.keys(CAT);
+
+  /* ---------- LEVELS ---------- */
+  /* Chaque niveau contient désormais 20 éléments à découvrir (learning)
+     et 20 questions à résoudre (game). */
+  var LL = (function(){
+    return Array.from({length:20},function(_,i){
+      var n=i+1;
+      return{n:n, k:CKEYS[i%CKEYS.length], cnt:20, d:n<=7?'Facile':n<=14?'Moyen':'Difficile'};
+    });
+  })();
+  var GL = (function(){
+    return Array.from({length:20},function(_,i){
+      var n=i+1;
+      return{n:n, rds:20, cats:n<=7?CKEYS.slice(0,4):n<=14?CKEYS.slice(0,8):CKEYS, d:n<=7?'Facile':n<=14?'Moyen':'Difficile'};
+    });
+  })();
+
+  /* ---------- LEARN SELECT ---------- */
+  function showLearnSelect() {
+    showPage('pgLS');
+    var con = $('learn-levels'); con.innerHTML = '';
+    var cd = '';
+    LL.forEach(function(lv) {
+      if (lv.d !== cd) {
+        cd = lv.d;
+        var b = el('div','diff-band');
+        b.textContent = {Facile:'🌟 Easy',Moyen:'⭐⭐ Medium',Difficile:'⭐⭐⭐ Hard'}[lv.d];
+        con.appendChild(b);
+        var g = el('div','lv-grid'); g.id = 'llg-'+lv.d; con.appendChild(g);
+      }
+      var cat  = CAT[lv.k];
+      var done = !!(CU.learnDone && CU.learnDone[lv.n]);
+      var seen = CU.learnSeen && CU.learnSeen[lv.n] ? CU.learnSeen[lv.n].length : 0;
+      var lkd  = lv.n > 1 && !(CU.learnDone && CU.learnDone[lv.n-1]);
+      var card = el('div','lv-card'+(lkd?' locked':''));
+      card.style.setProperty('--lv-color',cat.color);
+      card.style.setProperty('--lv-glow', cat.glow);
+      var nD=el('div','lv-num');   nD.textContent=lv.n;
+      var eS=el('span','lv-emoji');eS.textContent=cat.emoji;
+      var lD=el('div','lv-label');lD.textContent=cat.name;
+      var sD=el('div','lv-stars');sD.textContent=done?'🌟 Done!':seen>0?'▶ '+seen+'/'+lv.cnt:'';
+      card.appendChild(nD);card.appendChild(eS);card.appendChild(lD);card.appendChild(sD);
+      if(lkd){var lk=el('div','lv-lock');lk.textContent='🔒';card.appendChild(lk);}
+      else{(function(n){card.addEventListener('click',function(){startLearn(n);});})(lv.n);}
+      $('llg-'+lv.d).appendChild(card);
+    });
+  }
+
+  /* ---------- LEARN BY CATEGORY ---------- */
+  function setLearnStyle(mode) {
+    $('ls-tab-level').classList.toggle('on', mode==='level');
+    $('ls-tab-cat')  .classList.toggle('on', mode==='cat');
+    $('learn-levels').style.display = (mode==='level') ? '' : 'none';
+    $('learn-cats')  .style.display = (mode==='cat')   ? '' : 'none';
+    if (mode==='cat') buildLearnCategories();
+  }
+
+  function buildLearnCategories() {
+    var con = $('learn-cats'); con.innerHTML = '';
+    var band = el('div','diff-band'); band.textContent = '🗂️ All Categories';
+    con.appendChild(band);
+    var grid = el('div','lv-grid'); con.appendChild(grid);
+    CKEYS.forEach(function(k){
+      var cat = CAT[k];
+      var card = el('div','lv-card');
+      card.style.setProperty('--lv-color', cat.color);
+      card.style.setProperty('--lv-glow',  cat.glow);
+      var eS = el('span','lv-emoji'); eS.textContent = cat.emoji;
+      var lD = el('div','lv-label');  lD.textContent = cat.name;
+      var sD = el('div','lv-stars');  sD.textContent = cat.items.length + ' items';
+      card.appendChild(eS); card.appendChild(lD); card.appendChild(sD);
+      (function(key){ card.addEventListener('click', function(){ startLearnCategory(key); }); })(k);
+      grid.appendChild(card);
+    });
+  }
+
+  function startLearnCategory(key) {
+    var cat = CAT[key];
+    /* Synthetic level: explore every item in the category, no lock */
+    var lv = { n: 'C-'+key, k: key, cnt: cat.items.length, d: 'Cat' };
+    curLv = lv.n;
+    if(!CU.learnSeen) CU.learnSeen = {};
+    if(!CU.learnSeen[lv.n]) CU.learnSeen[lv.n] = [];
+    /* Patch LL lookup so onLearnItem can find this synthetic level by index */
+    LL[lv.n] = lv;
+    showPage('pgLP');
+    $('l-tag').textContent = 'Category';
+    $('cat-title').textContent = cat.emoji + ' ' + cat.name;
+    $('cat-sub').textContent = 'Discover all ' + cat.items.length + ' ' + cat.name.toLowerCase() + ' — tap each item!';
+    buildLearnGrid(lv, cat);
+    speak('Category — ' + cat.name);
+  }
+
+  /* ---------- LEARN PLAY ---------- */
+  var curLv = null;
+  function startLearn(n) {
+    curLv = n;
+    var lv=LL[n-1], cat=CAT[lv.k];
+    if(!CU.learnSeen)CU.learnSeen={};
+    if(!CU.learnSeen[n])CU.learnSeen[n]=[];
+    showPage('pgLP');
+    $('l-tag').textContent  = 'Level '+n;
+    $('cat-title').textContent = cat.emoji+' '+cat.name;
+    $('cat-sub').textContent   = 'Discover '+lv.cnt+' '+cat.name.toLowerCase()+' — tap each item!';
+    buildLearnGrid(lv,cat);
+    speak('Level '+n+' — '+cat.name);
+  }
+
+  function buildLearnGrid(lv,cat) {
+    var grid=$('items-grid'); grid.innerHTML='';
+    var items=cat.items.slice(0,lv.cnt), seen=CU.learnSeen[lv.n]||[];
+    items.forEach(function(item,i){
+      var isSeen=seen.indexOf(i)>=0;
+      var card=el('div','item-card'+(isSeen?' seen':''));
+      card.style.setProperty('--ic-color',cat.color);
+      card.style.setProperty('--ic-glow', cat.glow);
+      var vs=el('span','item-vis'); vs.textContent=item.v;
+      var ls=el('div','item-lbl');  ls.textContent=item.l;
+      card.appendChild(vs); card.appendChild(ls);
+      (function(idx,it,c){card.addEventListener('click',function(){onLearnItem(lv,cat,idx,it,c);});})(i,item,card);
+      grid.appendChild(card);
+    });
+    updLearnProg(lv);
+  }
+
+  function onLearnItem(lv,cat,idx,item,card) {
+    if(!CU.learnSeen[lv.n])CU.learnSeen[lv.n]=[];
+    if(CU.learnSeen[lv.n].indexOf(idx)<0)CU.learnSeen[lv.n].push(idx);
+    CU.lastPlay=new Date().toISOString();
+    saveCurrentUser();
+    card.classList.add('seen');
+    speak((cat.sP||'')+item.l+(cat.sS?' '+cat.sS:''));
+    tone(660,'sine',0.13);
+    showSpot(item.v,item.l,item.i,cat.glow);
+    updLearnProg(lv);
+    if(CU.learnSeen[lv.n].length>=lv.cnt&&!(CU.learnDone&&CU.learnDone[lv.n])){
+      if(!CU.learnDone)CU.learnDone={};
+      CU.learnDone[lv.n]=true; CU.stars=(CU.stars||0)+1;
+      saveCurrentUser(); updTopbar();
+      setTimeout(function(){closeSpot();showReward('Learning Level '+lv.n+' Completed!','You discovered all the '+CAT[lv.k].name.toLowerCase()+'! +1 ⭐');jingle();confetti();},1100);
+    }
+  }
+
+  function updLearnProg(lv) {
+    var s=CU.learnSeen&&CU.learnSeen[lv.n]?CU.learnSeen[lv.n].length:0, t=lv.cnt, p=Math.round(s/t*100);
+    $('prog-fill').style.width=p+'%';
+    $('prog-txt').textContent=s+' / '+t;
+    $('l-prog').textContent=p+'% explored';
+  }
+
+  /* ---------- GAME SELECT ---------- */
+  function showGameSelect() {
+    showPage('pgGS');
+    var con=$('game-levels'); con.innerHTML='';
+    var cd='';
+    GL.forEach(function(lv){
+      if(lv.d!==cd){
+        cd=lv.d;
+        var b=el('div','diff-band');
+        b.textContent={Facile:'🌟 Easy',Moyen:'⭐⭐ Medium',Difficile:'⭐⭐⭐ Hard'}[lv.d];
+        con.appendChild(b);
+        var g=el('div','lv-grid');g.id='glg-'+lv.d;con.appendChild(g);
+      }
+      var done=!!(CU.gameDone&&CU.gameDone[lv.n]);
+      var sts=(CU.gameStars&&CU.gameStars[lv.n])||0;
+      var lkd=lv.n>1&&!(CU.gameDone&&CU.gameDone[lv.n-1]);
+      var ss=done?'⭐'.repeat(sts)+(sts<3?'☆'.repeat(3-sts):''):'';
+      var card=el('div','lv-card'+(lkd?' locked':''));
+      card.style.setProperty('--lv-color','#FF4DA6');
+      card.style.setProperty('--lv-glow','rgba(255,77,166,.2)');
+      var nD=el('div','lv-num');   nD.textContent=lv.n;
+      var eS=el('span','lv-emoji');eS.textContent='🎮';
+      var lD=el('div','lv-label');lD.textContent=lv.rds+' rounds';
+      var sD=el('div','lv-stars');sD.textContent=ss;
+      card.appendChild(nD);card.appendChild(eS);card.appendChild(lD);card.appendChild(sD);
+      if(lkd){var lk=el('div','lv-lock');lk.textContent='🔒';card.appendChild(lk);}
+      else{(function(n){card.addEventListener('click',function(){startGame(n);});})(lv.n);}
+      $('glg-'+lv.d).appendChild(card);
+    });
+  }
+
+  /* ---------- GAME PLAY ---------- */
+  var G = {};
+  function startGame(n) {
+    var lv=GL[n-1];
+    G={n:n,lv:lv,round:0,correct:0,wrong:0,qs:buildQuestions(lv)};
+    showPage('pgGP');
+    $('g-tag').textContent   ='Level '+n;
+    $('g-title').textContent ='🎮 Level '+n;
+    $('g-sub').textContent   =lv.d+' — '+lv.rds+' rounds';
+    $('g-total').textContent =lv.rds;
+    updScore(); speak('Let\'s go! Level '+n); showQuestion();
+  }
+
+  function buildQuestions(lv) {
+    return Array.from({length:lv.rds},function(_,i){
+      var k=lv.cats[i%lv.cats.length], cat=CAT[k], pool=cat.items;
+      var cor=pool[Math.floor(Math.random()*pool.length)];
+      var wr=pool.filter(function(x){return x.l!==cor.l;}).sort(function(){return Math.random()-.5;}).slice(0,3);
+      return{k:k,cat:cat,cor:cor,opts:[cor].concat(wr).sort(function(){return Math.random()-.5;})};
+    });
+  }
+
+  function showQuestion() {
+    var q=G.qs[G.round];
+    $('q-round-badge').textContent=(G.round+1)+'/'+G.lv.rds;
+    $('q-prompt').textContent="What is this?";
+    $('q-visual').textContent=q.cor.v;
+    $('feedback-msg').textContent='';
+    $('next-btn').style.display='none';
+    $('g-round').textContent=G.round+1;
+    var grid=$('opts-grid'); grid.innerHTML='';
+    q.opts.forEach(function(opt){
+      var btn=el('button','opt-btn'); btn.dataset.label=opt.l;
+      btn.setAttribute('tabindex','0');
+      btn.setAttribute('aria-label',opt.l);
+      var lS=el('span','opt-txt'); lS.textContent=opt.l;
+      btn.appendChild(lS);
+      (function(o){btn.addEventListener('click',function(){checkAnswer(o,q,btn);});})(opt);
+      grid.appendChild(btn);
+    });
+    /* Force Twemoji re-parse so emoji become SVG images immediately */
+    if (window.twemoji) { try { twemoji.parse(grid, {folder:'svg', ext:'.svg', base:'https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/'}); } catch(e){} }
+    setTimeout(function(){speak((q.cat.sP||'')+q.cor.l+(q.cat.sS?' '+q.cat.sS:''));},400);
+  }
+
+  function checkAnswer(chosen,q,btn) {
+    document.querySelectorAll('.opt-btn').forEach(function(b){b.disabled=true;});
+    var ok=chosen.l===q.cor.l;
+    var fm=$('feedback-msg');
+    if(ok){btn.classList.add('correct');G.correct++;toneOK();speak('Well done! '+q.cor.l+' !');fm.textContent='✅ Excellent!';fm.style.color='var(--green)';}
+    else{btn.classList.add('wrong');G.wrong++;toneWrong();speak('It is '+q.cor.l);fm.textContent='❌ It was '+q.cor.l;fm.style.color='var(--red)';
+      document.querySelectorAll('.opt-btn').forEach(function(b){if(b.dataset.label===q.cor.l)b.classList.add('correct');});}
+    updScore(); $('next-btn').style.display='inline-block';
+  }
+
+  function nextRound(){G.round++;if(G.round>=G.lv.rds)endGame();else showQuestion();}
+
+  function endGame() {
+    var t=G.lv.rds, p=G.correct/t, sts=p>=1?3:p>=.7?2:p>=.5?1:0;
+    if(!CU.gameStars)CU.gameStars={};if(!CU.gameDone)CU.gameDone={};
+    CU.gameStars[G.n]=Math.max(CU.gameStars[G.n]||0,sts);
+    CU.gameDone[G.n]=true;
+    if(sts>0)CU.stars=(CU.stars||0)+sts;
+    CU.lastPlay=new Date().toISOString();
+    saveCurrentUser(); updTopbar();
+    var msg=sts===3?'🌟🌟🌟 Perfect Score!':sts===2?'⭐⭐ Great job!':sts===1?'⭐ Not bad!':'💪 Keep going!';
+    showReward(msg,G.correct+'/'+t+' correct answers — '+sts+' ⭐ earned'+(sts>1?'s':''));
+    if(sts>=2){jingle();confetti();}else speak('Done! Score: '+G.correct+' out of '+t);
+  }
+
+  function updScore(){$('g-correct').textContent=G.correct||0;$('g-wrong').textContent=G.wrong||0;}
+
+  /* ---------- SPOTLIGHT ---------- */
+  function showSpot(vis,lbl,info,glow) {
+    $('spot-vis').textContent  = vis;
+    $('spot-lbl').textContent  = lbl;
+    $('spot-info').textContent = info||'';
+    $('spotlight').classList.add('show');
+  }
+  function closeSpot(){$('spotlight').classList.remove('show');}
+
+  /* ---------- REWARD ---------- */
+  function showReward(title,text){
+    $('rw-title').textContent=title; $('rw-text').textContent=text||'';
+    $('reward-ovl').classList.add('show');
+  }
+
+  /* ---------- CONFETTI ---------- */
+  function confetti() {
+    var cv=$('confetti-canvas'),ctx=cv.getContext('2d');
+    cv.width=innerWidth; cv.height=innerHeight;
+    var cols=['#FFD700','#00E5FF','#B048F8','#FF4DA6','#00E676','#FF5252','#FF9100'];
+    var ps=Array.from({length:140},function(){return{
+      x:Math.random()*cv.width,y:-20-Math.random()*160,r:4+Math.random()*7,
+      color:cols[Math.floor(Math.random()*cols.length)],
+      vx:(Math.random()-.5)*5,vy:3+Math.random()*5,
+      angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*.2,
+      shape:Math.random()>.4?'rect':'circle'
+    };});
+    var f=0;
+    (function draw(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(function(p){
+        ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);ctx.fillStyle=p.color;
+        if(p.shape==='rect')ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+        else{ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}
+        ctx.restore();p.x+=p.vx;p.y+=p.vy;p.angle+=p.spin;p.vy+=.08;
+      });
+      if(++f<190)requestAnimationFrame(draw);else ctx.clearRect(0,0,cv.width,cv.height);
+    })();
+  }
+
+  /* ---------- SOUND ---------- */
+  function speak(text){
+    if(!sndOn)return;
+    try{
+      speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang='en-US';u.rate=.88;u.pitch=1.15;u.volume=1;
+      var v=speechSynthesis.getVoices().find(function(x){return x.lang.startsWith('en');})||speechSynthesis.getVoices()[0];
+      if(v)u.voice=v;
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  if(window.speechSynthesis)speechSynthesis.onvoiceschanged=function(){};
+
+  function tone(freq,type,dur){
+    if(!sndOn)return;
+    try{
+      var ctx=new(window.AudioContext||window.webkitAudioContext)();
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type=type||'sine';o.frequency.value=freq||880;
+      g.gain.setValueAtTime(.26,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+(dur||.2));
+      o.start();o.stop(ctx.currentTime+(dur||.2));
+    }catch(e){}
+  }
+  function jingle(){if(!sndOn)return;[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,'triangle',.24);},i*140);});}
+  function toneOK(){tone(1046,'triangle',.16);setTimeout(function(){tone(1318,'triangle',.16);},160);}
+  function toneWrong(){tone(200,'sawtooth',.22);}
+
+  /* ---------- STAR FIELD ---------- */
+  function buildStarField(){
+    var c=$('starfield');
+    for(var i=0;i<80;i++){
+      var s=document.createElement('div');s.className='star';
+      var sz=1+Math.random()*2.3;
+      s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100)+'%;left:'+(Math.random()*100)+'%;--d:'+(2+Math.random()*4)+'s;--delay:'+(Math.random()*4)+'s';
+      c.appendChild(s);
+    }
+  }
+
+  /* ---------- INIT ---------- */
+  function init() {
+    buildStarField();
+    buildPickers();
+
+    /* AUTH */
+    $('tab-login') .addEventListener('click', function(){switchTab('login');});
+    $('tab-reg')   .addEventListener('click', function(){switchTab('reg');});
+    $('go-reg')    .addEventListener('click', function(){switchTab('reg');});
+    $('go-login')  .addEventListener('click', function(){switchTab('login');});
+    $('btn-login') .addEventListener('click', doLogin);
+    $('btn-register').addEventListener('click', doRegister);
+    $('l-pass')    .addEventListener('keydown', function(e){if(e.key==='Enter')doLogin();});
+    $('l-user')    .addEventListener('keydown', function(e){if(e.key==='Enter')doLogin();});
+
+    /* NAV */
+    $('btn-home')  .addEventListener('click', function(){showPage('pgHome');updHome();});
+    $('btn-logout').addEventListener('click', doLogout);
+    $('btn-sound') .addEventListener('click', function(){
+      sndOn=!sndOn; $('btn-sound').textContent=sndOn?'🔊':'🔇';
+      if(sndOn)speak('Sound on!');
+    });
+    $('btn-learn') .addEventListener('click', function(){ showLearnSelect(); setLearnStyle('level'); });
+    $('btn-game')  .addEventListener('click', showGameSelect);
+    $('btn-lback') .addEventListener('click', function(){ showLearnSelect(); setLearnStyle('level'); });
+    $('btn-gback') .addEventListener('click', showGameSelect);
+    $('btn-aback') .addEventListener('click', function(){showPage('pgHome');updHome();});
+    $('ls-tab-level').addEventListener('click', function(){ setLearnStyle('level'); });
+    $('ls-tab-cat')  .addEventListener('click', function(){ setLearnStyle('cat');   });
+
+    /* SPOTLIGHT */
+    $('btn-spot-close').addEventListener('click', closeSpot);
+    $('spotlight')     .addEventListener('click', function(e){if(e.target===$('spotlight'))closeSpot();});
+    $('btn-spot-speak').addEventListener('click', function(){speak($('spot-lbl').textContent);tone(660,'sine',.13);});
+
+    /* REWARD */
+    $('btn-rw-close').addEventListener('click', function(){$('reward-ovl').classList.remove('show');});
+
+    /* GAME */
+    $('next-btn').addEventListener('click', nextRound);
+
+    /* AUTH-FIRST: show sign-in/sign-up screen on launch, unless a session already exists */
+    if (loadSession()) {
+      updTopbar(); showPage('pgHome'); updHome();
+    } else {
+      switchTab('login');
+      showPage('pgAuth');
+    }
+  }
+
+  /* Run immediately — script is at end of body so DOM is ready */
+  init();
+
+})(); // end IIFE
+</script>
+<script>
+/* ===== TWEMOJI BOOTSTRAP =====
+   Converts every emoji in the DOM into a high-quality SVG image so it renders
+   the SAME on every device (Windows, Android, old browsers). This eliminates
+   the empty-square / rectangle problem AND gives all images a consistent
+   colorful 3D-fantasy look (further enhanced by CSS filters above). */
+(function () {
+  if (!window.twemoji) return;
+  /* jdecked twemoji v15.1.0 covers Unicode 15+ (🩷 🩶 🪻 🫐 🫀 🪸 🩵 …) */
+  var opts = { folder: 'svg', ext: '.svg', base: 'https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/' };
+  function parseAll() { try { twemoji.parse(document.body, opts); } catch(e){} }
+  // Initial pass
+  parseAll();
+  // Re-parse whenever new content is rendered (levels, items, modals, quizzes)
+  var pending = false;
+  var mo = new MutationObserver(function () {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () { pending = false; parseAll(); });
+  });
+  mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+})();
+</script>
+
+<script>
+/* ===== TV REMOTE D-PAD NAVIGATION ===== */
+(function(){
+  function focusables(){
+    return Array.from(document.querySelectorAll(
+      '.page.active button, .page.active [tabindex="0"], .page.active .h-card, .page.active .lv-card, .page.active .item-card, .page.active .opt-btn, #topbar button:not(.hidden)'
+    )).filter(function(el){ return el.offsetParent !== null; });
+  }
+  function center(el){ var r=el.getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}; }
+  function move(dir){
+    var els = focusables(); if(!els.length) return;
+    var cur = document.activeElement;
+    if(!cur || !els.includes(cur)){ els[0].focus(); return; }
+    var c = center(cur), best=null, bd=Infinity;
+    els.forEach(function(el){
+      if(el===cur) return;
+      var p = center(el), dx=p.x-c.x, dy=p.y-c.y;
+      var ok = (dir==='ArrowRight'&&dx>10) || (dir==='ArrowLeft'&&dx<-10) ||
+               (dir==='ArrowDown'&&dy>10)  || (dir==='ArrowUp'&&dy<-10);
+      if(!ok) return;
+      var d = Math.hypot(dx,dy) + Math.abs(dir==='ArrowLeft'||dir==='ArrowRight'?dy*2:dx*2);
+      if(d<bd){bd=d; best=el;}
+    });
+    if(best) best.focus();
+  }
+  document.addEventListener('keydown', function(e){
+    var k = e.key;
+    if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(k)){
+      // Don't intercept inside text inputs
+      var t = e.target.tagName;
+      if(t==='INPUT'||t==='TEXTAREA') return;
+      e.preventDefault(); move(k);
+    } else if (k==='Enter' || k===' '){
+      var a = document.activeElement;
+      if(a && a.tagName!=='BUTTON' && a.click){ e.preventDefault(); a.click(); }
+    } else if (k==='Backspace' || k==='Escape' || k==='BrowserBack') {
+      var hb = document.getElementById('btn-home');
+      if(hb && !hb.classList.contains('hidden')){ e.preventDefault(); hb.click(); }
+    }
+  });
+  // Focus first item when page changes
+  var mo = new MutationObserver(function(){
+    var pg = document.querySelector('.page.active');
+    if(!pg) return;
+    if(document.activeElement === document.body){
+      var f = focusables(); if(f.length) f[0].focus();
+    }
+  });
+  mo.observe(document.body, {attributes:true, subtree:true, attributeFilter:['class']});
+})();
+</script>
+
+</body>
+</html>
